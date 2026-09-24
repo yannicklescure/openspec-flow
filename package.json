@@ -18,7 +18,8 @@
     "README.md"
   ],
   "scripts": {
-    "test": "sh scripts/check-specs/run-tests.sh"
+    "test": "sh scripts/check-specs/run-tests.sh",
+    "test:bin": "sh scripts/check-specs/smoke-bin.sh"
   },
   "engines": {
     "node": ">=20.11"

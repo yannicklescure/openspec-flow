@@ -1,0 +1,119 @@
+# openspec-flow
+
+A Claude Code plugin for repositories using [OpenSpec](https://github.com/fission-ai/openspec):
+a change flow with **one human gate, at merge**, plus drift checks that hold a
+specification to the code it claims to describe.
+
+It exists because both halves were learned the expensive way in one repository
+and then could not travel. The reasoning is kept, not just the rules — a rule
+without its reason gets "simplified" back out.
+
+## What's in it
+
+**Skills** — the flow and the discipline:
+
+| skill | covers |
+|---|---|
+| `openspec-change-flow` | the sequence, why one gate, archive-on-verified-green, the `gh pr checks --watch` false green, post-archive verification |
+| `openspec-spec-drift` | what a `MODIFIED` delta silently deletes, both marker placement rules and why they are opposites, the doc-vs-spec asymmetry |
+| `openspec-evidence` | watch a check fail before trusting it; three ways a green check means nothing |
+
+**Commands**:
+
+- `/archive-on-green` — pin the head SHA, confirm each check by name, archive, verify the apply
+- `/verify-green` — is this PR actually green, against its current head?
+
+**Checker** — `scripts/check-specs`, four checks over `openspec/`:
+
+| check | fails when |
+|---|---|
+| `scenarios` | a `MODIFIED` delta omits a scenario the live requirement carries |
+| `duplicates` | one spec declares the same requirement name twice |
+| `inventories` | a capability that declares it enumerates code disagrees with it |
+| `strict` | `openspec validate --specs --strict` does |
+
+Three are pure text comparisons over `openspec/`, with no knowledge of your
+stack. 37 unit tests, no fixtures on disk.
+
+## Install
+
+Add the plugin, then wire the checker into the consumer repository:
+
+```bash
+# 1. run the checks
+node <plugin>/scripts/check-specs/index.mjs --root .
+
+# 2. wire them in — as an npm script, a CI job, and a pre-push hook
+```
+
+`openspec` must be resolvable in the consumer repo for the `strict` check. Pin
+it as a devDependency — note the scope, **`@fission-ai/openspec`**; the bare
+`openspec` on npm is an unrelated package whose only published version is
+`0.0.0`, so a pin written from the command name alone installs something else
+under the name your build then trusts.
+
+The checker needs no build, no database and no credentials, so give it its own CI
+job rather than appending it to one that builds. It needs no git history either —
+check out shallow.
+
+## Declaring an inventory
+
+Three of the four checks work anywhere. `inventories` has to derive something
+from *your* code, which is the one thing this plugin cannot know: routes come
+from NestJS decorators in one repository, an Express router in another, an
+OpenAPI document in a third.
+
+So the derivation is yours. `openspec-flow.json` at the repository root:
+
+```json
+{
+  "derivers": {
+    "routes": "./scripts/derive-routes.mjs"
+  }
+}
+```
+
+The module default-exports `(root) => string[]`, and **should** also export
+`normalise(item) => string`:
+
+```js
+export default function deriveRoutes(root) { /* ... */ }
+
+// Applied to BOTH sides — your derived items and the ones the declaring
+// requirement lists.
+export function normalise(item) { /* ... */ }
+```
+
+`normalise` being applied to both sides is what makes the comparison symmetric.
+Only you know that `:id` and `:portfolioId` are one route, or that a query string
+is not part of a path — but normalising only your own side reports every
+difference of spelling as drift. That was the first bug this seam produced, found
+by running the plugin against a real repository whose repo-local version had
+normalised both sides inside one function.
+
+A capability then opts in, **inside** the requirement making the claim:
+
+```markdown
+### Requirement: Versioned REST surface
+
+<!-- enumerates: routes -->
+
+The system SHALL expose the following endpoints...
+```
+
+Placement matters and is the opposite of the `drops-scenario` marker's rule —
+see the `openspec-spec-drift` skill for why.
+
+An inventory no capability declares passes silently. Deciding that something
+deserves a capability is a judgement, not a defect.
+
+## What it cannot do
+
+No check here reads application code, so none can tell you whether a requirement
+is still **true** — only whether a stated claim has stopped holding. A capability
+can be structurally perfect, pass every check, and explain its behaviour with a
+reason that stopped being true months ago. That class needs a reader.
+
+## Licence
+
+MIT

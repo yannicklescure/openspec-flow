@@ -1,0 +1,83 @@
+# CI for openspec-flow.
+#
+# This repository is a Claude Code plugin and an npm package at once. CI can
+# only exercise the package half: loading the plugin needs
+# ${CLAUDE_PLUGIN_ROOT}, which does not exist on a runner.
+#
+# Until this workflow existed, the package's only test runner was its consumer
+# — crypto-rebalancer's `test:specs` runs the *installed* copy's tests, which
+# meant a broken commit on master was discovered downstream. That is backwards
+# for a package meant to have several consumers.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A superseded run tells you nothing; let the newest push win.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: unit tests (node ${{ matrix.node }})
+    # Pinned to the current LTS image rather than `ubuntu-latest`, which still
+    # resolves to 24.04 and moves underneath you when GitHub migrates it. A
+    # runner image that changes on GitHub's schedule can redden or green a
+    # build that changed nothing here.
+    runs-on: ubuntu-26.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 22 is what the consumer's CI runs on. 20 is the floor declared in
+        # `engines`, and 24 is what development happens on today.
+        #
+        # The matrix is not padding: `run-tests.sh` exists *because* these
+        # versions disagree about what `node --test` accepts as an argument —
+        # a directory fails on 22 and 24, a glob fails on 20. That script's
+        # workaround is only held to its claim if all three actually run it.
+        node: ['20', '22', '24']
+
+    steps:
+      # The checker needs no git history, so the default shallow checkout is
+      # deliberate rather than an oversight.
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No install step: the package has no dependencies, so there is nothing
+      # to install and no lockfile for `npm ci` to read. The tests are pure
+      # functions over text with no fixtures on disk.
+      - run: npm test
+
+  bin:
+    name: bin smoke test
+    runs-on: ubuntu-26.04
+
+    # One Node version, not the matrix. This job tests the packaging surface —
+    # how npm installs a bin and how the entry guard survives the symlink —
+    # which does not vary by language version, and each run installs from the
+    # registry. 22 matches the consumer.
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      # Covers what `unit` structurally cannot. The unit tests import each
+      # `lib/` module directly and never reach the entry point, so when the
+      # bin silently exited 0 through its npm symlink (fixed in e1567a4) all
+      # 37 of them stayed green. Verified: reintroducing that guard leaves
+      # `npm test` at 37 passed while this job fails.
+      #
+      # It installs @fission-ai/openspec from the registry, which makes this
+      # the one job here that needs network beyond the checkout.
+      - run: sh scripts/check-specs/smoke-bin.sh

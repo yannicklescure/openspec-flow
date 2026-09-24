@@ -114,6 +114,30 @@ is still **true** — only whether a stated claim has stopped holding. A capabil
 can be structurally perfect, pass every check, and explain its behaviour with a
 reason that stopped being true months ago. That class needs a reader.
 
+## Developing this package
+
+```bash
+npm test          # 37 unit tests, no dependencies, no fixtures on disk
+npm run test:bin  # packs, installs and drives the bin the way a consumer gets it
+```
+
+Both run in CI (`.github/workflows/ci.yml`) on every push and pull request —
+the unit tests across Node 20, 22 and 24, the smoke test on 22.
+
+The two are not redundant. Every unit test imports a module under `lib/`
+directly and never reaches the entry point, so when the bin silently exited 0
+through its npm symlink all 37 stayed green: `process.argv[1]` is the symlink
+while `import.meta.url` is the real file, and the entry guard compared them
+directly. `scripts/check-specs/smoke-bin.sh` covers that seam by installing the
+packed tarball into a throwaway project and making four observations — the bin
+prints its usage, a missing `openspec` CLI fails loudly rather than passing, a
+seeded dropped scenario is caught *and named*, and restoring it goes green
+again.
+
+Watched failing before being trusted, per the `openspec-evidence` skill:
+reintroducing that entry guard leaves `npm test` at 37 passed while the smoke
+test reports three failures.
+
 ## Licence
 
 MIT

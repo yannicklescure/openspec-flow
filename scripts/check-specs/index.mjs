@@ -26,7 +26,13 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { checkDuplicateRequirements } from './lib/duplicates.mjs';
@@ -288,7 +294,32 @@ async function main(argv) {
   return report(await runAllChecks(root));
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+/**
+ * Was this file invoked directly?
+ *
+ * Compared through `realpathSync` on both sides, because npm installs a `bin`
+ * as a SYMLINK: `process.argv[1]` is then `node_modules/.bin/openspec-check-specs`
+ * while `import.meta.url` is the real file, and a naive equality check fails.
+ * The failure is silent and green — the module loads, `main` never runs, the
+ * process exits 0 — so a CI job calling the bin would pass forever without
+ * checking anything. Found by running the bin through its symlink instead of
+ * assuming it behaved like a direct `node` invocation.
+ */
+function invokedDirectly() {
+  if (!process.argv[1]) {
+    return false;
+  }
+  try {
+    return (
+      realpathSync(process.argv[1]) ===
+      realpathSync(fileURLToPath(import.meta.url))
+    );
+  } catch {
+    return false;
+  }
+}
+
+if (invokedDirectly()) {
   process.exit(await main(process.argv.slice(2)));
 }
 

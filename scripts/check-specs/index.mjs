@@ -127,7 +127,7 @@ function readConfig(root) {
  * `normalise` is applied to **both** sides — the derived items and the ones the
  * declaring requirement lists — which is the only way the comparison can be
  * symmetric. Only the consumer knows what makes two of its items the same item
- * (that `:id` and `:portfolioId` are one route, that a query string is not part
+ * (that `:id` and `:widgetId` are one route, that a query string is not part
  * of a path), but if it normalises just its own side the check reports every
  * difference of spelling as drift. That was the first bug this seam produced.
  *

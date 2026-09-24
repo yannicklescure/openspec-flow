@@ -17,7 +17,7 @@ opsx explore -> propose -> apply -> open PR -> watch CI
 ## Why one gate
 
 This is not laxity. A repository that stopped twice per change — once before
-committing, once before archiving — shipped seven changes in a day and *neither
+committing, once before archiving — shipped a day of changes and *neither
 stop ever changed anything*. Reading back what each decision actually caught:
 
 | decision | was it gated? | caught anything |

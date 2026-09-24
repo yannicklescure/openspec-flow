@@ -7,7 +7,7 @@ const LIVE = parseSpec(`# web-dashboard Specification
 
 ## Requirements
 
-### Requirement: Portfolio settings are editable
+### Requirement: Sessions are revocable
 
 The detail page SHALL let the owner edit settings.
 
@@ -30,7 +30,7 @@ function run(deltaText) {
 test('a delta omitting a live scenario fails, naming all three', () => {
   const failures = run(`## MODIFIED Requirements
 
-### Requirement: Portfolio settings are editable
+### Requirement: Sessions are revocable
 
 Reworded prose.
 
@@ -41,16 +41,16 @@ Reworded prose.
 
   strictEqual(failures.length, 1);
   match(failures[0].what, /web-dashboard/);
-  match(failures[0].what, /Portfolio settings are editable/);
+  match(failures[0].what, /Sessions are revocable/);
   match(failures[0].what, /Fixed bindings are not offered as inputs/);
 });
 
 test('a marked omission passes', () => {
-  const failures = run(`<!-- drops-scenario: Portfolio settings are editable :: Fixed bindings are not offered as inputs -->
+  const failures = run(`<!-- drops-scenario: Sessions are revocable :: Fixed bindings are not offered as inputs -->
 
 ## MODIFIED Requirements
 
-### Requirement: Portfolio settings are editable
+### Requirement: Sessions are revocable
 
 #### Scenario: Editing a setting
 
@@ -63,7 +63,7 @@ test('a marked omission passes', () => {
 test('adding a scenario and rewording bodies passes', () => {
   const failures = run(`## MODIFIED Requirements
 
-### Requirement: Portfolio settings are editable
+### Requirement: Sessions are revocable
 
 Entirely new prose.
 
@@ -96,11 +96,11 @@ test('a MODIFIED requirement with no live counterpart fails', () => {
 });
 
 test('a marker for one scenario does not silence a second omission', () => {
-  const failures = run(`<!-- drops-scenario: Portfolio settings are editable :: Editing a setting -->
+  const failures = run(`<!-- drops-scenario: Sessions are revocable :: Editing a setting -->
 
 ## MODIFIED Requirements
 
-### Requirement: Portfolio settings are editable
+### Requirement: Sessions are revocable
 
 #### Scenario: Arming live trading is confirmed
 `);

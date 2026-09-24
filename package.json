@@ -1,0 +1,28 @@
+{
+  "name": "openspec-flow",
+  "version": "0.1.0",
+  "description": "Drift checks for OpenSpec repositories: a MODIFIED delta cannot silently discard a scenario, and a capability that claims to enumerate code is held to it.",
+  "type": "module",
+  "bin": {
+    "openspec-check-specs": "scripts/check-specs/index.mjs"
+  },
+  "exports": {
+    ".": "./scripts/check-specs/index.mjs",
+    "./lib/*": "./scripts/check-specs/lib/*"
+  },
+  "files": [
+    "scripts/",
+    "skills/",
+    "commands/",
+    ".claude-plugin/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "sh scripts/check-specs/run-tests.sh"
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "license": "MIT",
+  "keywords": ["openspec", "spec-driven", "workflow", "ci", "drift"]
+}

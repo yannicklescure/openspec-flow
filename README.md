@@ -85,7 +85,7 @@ export function normalise(item) { /* ... */ }
 ```
 
 `normalise` being applied to both sides is what makes the comparison symmetric.
-Only you know that `:id` and `:portfolioId` are one route, or that a query string
+Only you know that `:id` and `:widgetId` are one route, or that a query string
 is not part of a path — but normalising only your own side reports every
 difference of spelling as drift. That was the first bug this seam produced, found
 by running the plugin against a real repository whose repo-local version had

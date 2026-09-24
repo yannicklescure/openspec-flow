@@ -13,7 +13,7 @@ what it says.
 This is not ceremony. Every real finding in the session that produced this
 plugin came from it:
 
-- A `fetch` stub that threw on any call left **all 391 tests green**. Every call
+- A `fetch` stub that threw on any call left **the entire suite green**. Every call
   site was a TanStack Query `queryFn`, and Query caught the rejection into an
   error state that a loading-state assertion never inspects. Throwing changed
   nothing anything could see. The fix was to *record* the attempted URL and

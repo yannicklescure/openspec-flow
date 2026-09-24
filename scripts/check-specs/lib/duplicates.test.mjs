@@ -14,17 +14,17 @@ function spec(capability, text) {
 test('one spec declaring a name twice fails, naming file and name', () => {
   const failures = checkDuplicateRequirements([
     spec(
-      'portfolio',
-      `### Requirement: Targets sum to 100
+      'user-auth',
+      `### Requirement: Quotas sum to 100
 
-### Requirement: Targets sum to 100
+### Requirement: Quotas sum to 100
 `,
     ),
   ]);
 
   strictEqual(failures.length, 1);
-  match(failures[0].what, /portfolio/);
-  match(failures[0].what, /Targets sum to 100/);
+  match(failures[0].what, /user-auth/);
+  match(failures[0].what, /Quotas sum to 100/);
   match(failures[0].what, /2 times/);
 });
 
@@ -40,12 +40,12 @@ test('two capabilities sharing a requirement name pass', () => {
 test('three copies yield one failure, not two', () => {
   const failures = checkDuplicateRequirements([
     spec(
-      'rebalancing',
-      `### Requirement: Sells precede buys
+      'billing',
+      `### Requirement: Writes precede reads
 
-### Requirement: Sells precede buys
+### Requirement: Writes precede reads
 
-### Requirement: Sells precede buys
+### Requirement: Writes precede reads
 `,
     ),
   ]);
@@ -57,7 +57,7 @@ test('three copies yield one failure, not two', () => {
 test('a clean spec passes', () => {
   const failures = checkDuplicateRequirements([
     spec(
-      'portfolio',
+      'user-auth',
       `### Requirement: One
 
 ### Requirement: Two

@@ -188,7 +188,7 @@ test('a capability declaring nothing yields nothing', () => {
   deepStrictEqual(
     parseInventoryDeclarations(`### Requirement: Something
 
-It mentions \`GET /portfolios\` in passing.
+It mentions \`GET /widgets\` in passing.
 `),
     [],
   );

@@ -6,7 +6,7 @@ test('a zero exit passes even when INFO notices were printed', () => {
   const failures = checkStrictValidation({
     run: () => ({
       status: 0,
-      stdout: `✓ spec/portfolio
+      stdout: `✓ spec/user-auth
   ℹ [INFO] requirements[0]: Requirement text is very long (>500 characters).
 Totals: 18 passed, 0 failed (18 items)`,
       stderr: '',
@@ -20,7 +20,7 @@ test('a failing item is named as openspec named it', () => {
   const failures = checkStrictValidation({
     run: () => ({
       status: 1,
-      stdout: `✓ spec/portfolio
+      stdout: `✓ spec/user-auth
 ✗ spec/frontend-styling
 Totals: 17 passed, 1 failed (18 items)`,
       stderr: '',

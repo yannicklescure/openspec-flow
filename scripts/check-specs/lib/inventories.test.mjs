@@ -7,19 +7,19 @@ const declared = [
     capability: 'rest-api',
     requirement: 'Versioned REST surface',
     inventory: 'routes',
-    items: ['GET /health', 'POST /portfolios'],
+    items: ['GET /health', 'POST /widgets'],
   },
 ];
 
 test('an item in the code that the declaring capability omits fails', () => {
   const failures = checkInventories({
     declared,
-    derived: { routes: ['GET /health', 'POST /portfolios', 'GET /runs/:id'] },
+    derived: { routes: ['GET /health', 'POST /widgets', 'GET /jobs/:id'] },
   });
 
   strictEqual(failures.length, 1);
   match(failures[0].what, /rest-api/);
-  match(failures[0].what, /GET \/runs\/:id/);
+  match(failures[0].what, /GET \/jobs\/:id/);
   match(failures[0].what, /Versioned REST surface/);
 });
 
@@ -30,7 +30,7 @@ test('an item the capability lists that the code no longer has fails', () => {
   });
 
   strictEqual(failures.length, 1);
-  match(failures[0].what, /POST \/portfolios/);
+  match(failures[0].what, /POST \/widgets/);
   match(failures[0].fix, /remov|delete/i);
 });
 
@@ -38,7 +38,7 @@ test('a capability declaring nothing is ignored', () => {
   deepStrictEqual(
     checkInventories({
       declared: [],
-      derived: { routes: ['GET /health', 'POST /portfolios'] },
+      derived: { routes: ['GET /health', 'POST /widgets'] },
     }),
     [],
   );
@@ -49,7 +49,7 @@ test('an inventory nothing declares passes', () => {
     checkInventories({
       declared,
       derived: {
-        routes: ['GET /health', 'POST /portfolios'],
+        routes: ['GET /health', 'POST /widgets'],
         env: ['NODE_ENV', 'PORT'],
       },
     }),
@@ -72,7 +72,7 @@ test('an exact match passes', () => {
   deepStrictEqual(
     checkInventories({
       declared,
-      derived: { routes: ['POST /portfolios', 'GET /health'] },
+      derived: { routes: ['POST /widgets', 'GET /health'] },
     }),
     [],
   );

@@ -1,6 +1,6 @@
 {
   "name": "openspec-flow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drift checks for OpenSpec repositories: a MODIFIED delta cannot silently discard a scenario, and a capability that claims to enumerate code is held to it.",
   "type": "module",
   "bin": {

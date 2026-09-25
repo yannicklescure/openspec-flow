@@ -12,11 +12,11 @@
  *
  * The only structural difference is the operation header, which a main spec
  * does not carry. This parser records it when present rather than requiring
- * it, so both files go through the same code path (design.md D1: the
- * comparison is text over two files).
+ * it, so both files go through the same code path: the comparison is text
+ * over two files.
  *
- * Pure: no disk access, no process state. `index.mjs` owns every read
- * (design.md D3).
+ * Pure: no disk access, no process state. `index.mjs` owns every read, which
+ * is what lets every module here be unit-tested without fixtures on disk.
  */
 
 /** Delta operation headers OpenSpec assigns meaning to. */
@@ -190,7 +190,7 @@ const DROP_MARKER = /^\s*<!--\s*drops-scenario:\s*(.+?)\s*::\s*(.+?)\s*-->\s*$/;
  *
  * A MODIFIED requirement replaces its live counterpart in full, so omitting a
  * scenario deletes it. An oversight and a deliberate removal look identical,
- * which is why intent is stated rather than inferred (design.md D2).
+ * which is why intent is stated rather than inferred.
  *
  * Placement is the load-bearing part, not a style rule. `openspec archive`
  * applies requirement blocks, so anything inside a requirement is copied into

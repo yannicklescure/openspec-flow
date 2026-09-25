@@ -12,7 +12,7 @@
  * modification, not a removal, and must not be reported.
  *
  * Pure: the caller supplies parsed specs and markers; `index.mjs` owns the
- * reads (design.md D3).
+ * reads.
  */
 
 import { createFailure } from './report.mjs';
@@ -24,7 +24,8 @@ const CHECKED_OPERATION = 'MODIFIED';
  * Compare a delta's MODIFIED requirements against the live capability.
  *
  * `markers` are the deliberate-removal markers from the delta's header, each
- * naming one requirement and one scenario (design.md D2).
+ * naming one requirement and one scenario. Intent is stated, never inferred:
+ * an oversight and a deliberate removal look identical in the delta.
  *
  * Returns `{what, fix}` failures — never throws on a malformed pairing. A
  * MODIFIED requirement with no live counterpart is its own finding rather than

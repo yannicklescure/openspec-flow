@@ -1,17 +1,17 @@
 /**
  * The strict-validation check: delegate to OpenSpec's own validator.
  *
- * Strict validation is the tool's contract and it moves with the tool — this
- * repository has already had to regenerate its generated instruction files once
- * for a CLI version bump. A local reimplementation would silently diverge from
- * whatever `openspec` means by strict next month, so this shells out instead
- * (design.md D4) and surfaces the command's own words rather than restating
+ * Strict validation is the tool's contract and it moves with the tool — the
+ * repository this package was extracted from once had to regenerate its
+ * generated instruction files for a CLI version bump. A local reimplementation
+ * would silently diverge from whatever `openspec` means by strict next month,
+ * so this shells out instead and surfaces the command's own words rather than restating
  * them in this project's vocabulary.
  *
  * It is also the only check here that needs the CLI at all; the scenario-drop
- * and duplicate checks are text over files. That is why `openspec` is a pinned
- * devDependency (design.md D5) rather than something each machine happens to
- * have.
+ * and duplicate checks are text over files. That is why the consumer
+ * repository should pin `@fission-ai/openspec` as a devDependency rather than
+ * rely on whatever each machine happens to have.
  *
  * The subprocess call is injected, so the unit tests exercise the parsing
  * without invoking a real CLI and without this module importing `node:child_process`

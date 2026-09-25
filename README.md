@@ -8,6 +8,9 @@ It exists because both halves were learned the expensive way in one repository
 and then could not travel. The reasoning is kept, not just the rules — a rule
 without its reason gets "simplified" back out.
 
+How the flow runs, why it has one gate, and how the checker is built — with
+diagrams — are in [`docs/`](docs/README.md).
+
 ## What's in it
 
 **Skills** — the flow and the discipline:

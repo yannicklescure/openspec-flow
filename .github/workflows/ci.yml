@@ -4,10 +4,11 @@
 # only exercise the package half: loading the plugin needs
 # ${CLAUDE_PLUGIN_ROOT}, which does not exist on a runner.
 #
-# Until this workflow existed, the package's only test runner was its consumer
-# — crypto-rebalancer's `test:specs` runs the *installed* copy's tests, which
-# meant a broken commit on master was discovered downstream. That is backwards
-# for a package meant to have several consumers.
+# Until this workflow existed, the package had no test runner of its own. The
+# only thing that ran its tests was a repository installing it, whose own test
+# script invokes the *installed* copy's suite — so a broken commit on master
+# was discovered downstream rather than here. That is backwards for a package
+# meant to have several consumers.
 name: CI
 
 on:

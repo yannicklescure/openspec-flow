@@ -1,9 +1,9 @@
 /**
  * Shared result shape and formatter for the specification checkers.
  *
- * Deliberately the same contract as a documentation checker's report module
- * : every checker returns `{checker, failures[]}` where each
- * failure is `{what, fix}`, and the formatter renders one line per failure as
+ * Deliberately the same contract as a documentation checker's report module:
+ * every checker returns `{checker, failures[]}` where each failure is
+ * `{what, fix}`, and the formatter renders one line per failure as
  * `<checker>: <what> — <how to fix>`. A reader who has seen one checker fail
  * should not have to learn a second output format to read the other.
  *

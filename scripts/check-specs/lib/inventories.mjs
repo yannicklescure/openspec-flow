@@ -2,12 +2,13 @@
  * The inventory check: a capability that claims to enumerate something is held
  * to it.
  *
- * `rest-api` says its route list "is the whole `/api/v1` surface: a route that
- * exists in the API but is absent here is a spec defect", and carries a
- * scenario asserting the comparison holds. Nothing performed that comparison,
- * and by 2026-09-21 the list was missing five of twenty-three routes — while
- * `docs/API-REFERENCE.md` was correct throughout, because `check:docs` makes
- * exactly this comparison against the documentation.
+ * In the repository this package was extracted from, a capability said its
+ * route list "is the whole surface: a route that exists in the API but is
+ * absent here is a spec defect", and carried a scenario asserting the
+ * comparison holds. Nothing performed that comparison, and for six weeks the
+ * list was missing five of twenty-three routes — while the API reference
+ * document was correct throughout, because a documentation checker made
+ * exactly this comparison against it.
  *
  * Only a **declared** inventory is checked. A capability mentioning a route in
  * passing is not claiming completeness, and treating it as one would make every

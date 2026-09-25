@@ -1,22 +1,22 @@
 # check-specs — what each checker sees, and what it cannot
 
-Four checks, run by `npm run check:specs`. The contract is the
-`spec-drift-detection` capability spec.
+Four checks, run by the `openspec-check-specs` bin (`../index.mjs`). The design
+behind them, with diagrams, is in [`docs/checker.md`](../../../docs/checker.md).
 
 ## The boundary, first
 
 **None of these checks reads application code.** They compare specifications
-against specifications. So no check here can tell you whether a requirement is
-still _true_ — only whether the files are structurally sound and whether
-applying a delta would throw something away.
+against specifications, plus whatever a consumer's deriver extracts. So no check
+here can tell you whether a requirement is still _true_ — only whether the files
+are structurally sound, whether applying a delta would throw something away,
+and whether a declared inventory still matches what the deriver returns.
 
-The worked example is `openspec/specs/git-hooks/spec.md`. Its Purpose states
-that squash-merge turns the PR title into the `master` commit message. The
-repository rebase-merges, so the title never reaches history — the sentence is
-simply wrong, and has been since the merge method changed on 2026-08-02. Every
-check in this directory passes on that file, and always will. That class of
-drift needs a reader, which is what the mandatory Docs task group in each
-change is for.
+The worked example comes from the repository this package was extracted from. A
+capability's Purpose stated that squash-merge turns the PR title into the
+commit message. The repository had rebase-merged for weeks, so the title never
+reached history — the sentence was simply wrong. Every check in this directory
+passes on such a file, and always will. That class of drift needs a reader,
+which is what the mandatory Docs task group in each change is for.
 
 This is the same boundary a documentation checker states: inventories, never
 prose.
@@ -97,15 +97,23 @@ Limits:
   silently — deciding it deserves a capability is a judgement, not a defect. So
   this check cannot tell you that something *should* be specced, only that a
   stated claim has stopped being true.
-- **Routes are the only inventory derived today.** Env keys are deliberately not
-  compared: no capability declares the env set and none should, since `NODE_ENV`
-  and `PORT` are infrastructure.
+- **This package derives nothing itself.** Every inventory comes from a deriver
+  module the consumer configures in `openspec-flow.json`. The module
+  default-exports `(root) => string[]` and may export `normalise(item) => string`,
+  which is applied to **both** sides — normalising only the derived side reports
+  every difference of spelling as drift.
+- A deriver that is missing, exports no function, or throws is a finding rather
+  than a silent pass — a deriver that cannot run must not read as "nothing
+  drifted".
 - A declaration naming an inventory nothing derives is its own finding rather
   than a silent pass — a misspelled marker would otherwise leave the claim
   unenforced while looking enforced.
-- Routes reuse the consumer's configured deriver, so `check:docs` and
-  `check:specs` cannot disagree about what a route is. That is the one place the
-  two checker directories are coupled, and it is on purpose.
+- Listed items are read from the declaring requirement's prose before its first
+  scenario, as backticked `METHOD path` entries (`GET|PUT` expands to two). The
+  item format is route-shaped today.
+- If the repository also has a documentation checker comparing the same
+  inventory, point both at the same deriver, so the two cannot disagree about
+  what an item is.
 
 ## `strict` — openspec's own validator
 
@@ -115,9 +123,13 @@ Shells out to `openspec validate --specs --strict` rather than reimplementing
 it. Strict validation is the tool's contract and moves with the tool; a local
 copy would diverge from whatever it means next month.
 
-- This is the **only** check needing the CLI. The other two are text over files.
-  That is why `@fission-ai/openspec` is a pinned devDependency — note the scope:
-  the bare `openspec` on npm is an unrelated stub at `0.0.0`.
+- This is the **only** check needing the CLI. `scenarios` and `duplicates` are
+  text over files, and `inventories` adds only the consumer's deriver. That is
+  why the consumer repository should pin `@fission-ai/openspec` as a
+  devDependency — note the scope: the bare `openspec` on npm is an unrelated
+  stub at `0.0.0`.
+- The CLI is resolved with `npx --no-install`. A CLI that cannot start is
+  reported as a failure (status `127`), never as "validation passed".
 - A zero exit passes regardless of output. `[INFO]` notices about long
   requirement text are advice, not defects, and must not redden the build.
 - A non-zero exit whose output names no failing item still fails, printing the
@@ -130,5 +142,6 @@ copy would diverge from whatever it means next month.
 pure function over text, which is why they are unit-tested without fixtures on
 disk. Same split as a documentation checker.
 
-Run the tests with `npm run test:specs` — not `node --test check-specs/`,
-which fails on this host. See the comment in `run-tests.sh`.
+Run the tests with `npm test` — not `node --test scripts/check-specs/`, which
+fails on Node 22 and 24 (a glob fails on Node 20). See the comment in
+`run-tests.sh`.

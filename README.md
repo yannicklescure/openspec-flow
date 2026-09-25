@@ -124,8 +124,8 @@ npm test          # 37 unit tests, no dependencies, no fixtures on disk
 npm run test:bin  # packs, installs and drives the bin the way a consumer gets it
 ```
 
-Both run in CI (`.github/workflows/ci.yml`) on every push and pull request —
-the unit tests across Node 20, 22 and 24, the smoke test on 22.
+Both run in CI (`.github/workflows/ci.yml`) on every pull request and every push
+to `master` — the unit tests across Node 20, 22 and 24, the smoke test on 22.
 
 The two are not redundant. Every unit test imports a module under `lib/`
 directly and never reaches the entry point, so when the bin silently exited 0

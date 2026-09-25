@@ -11,7 +11,12 @@
 name: CI
 
 on:
+  # Push only to master. A push to a branch with an open PR also fires
+  # `pull_request`, and `concurrency` cannot fold the two together: their refs
+  # differ (refs/heads/<branch> vs refs/pull/<n>/merge), so every job ran twice.
+  # `pull_request` covers branches under review, and it tests the merge result.
   push:
+    branches: [master]
   pull_request:
 
 permissions:

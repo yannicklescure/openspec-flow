@@ -227,5 +227,6 @@ flowchart LR
 With the old entry guard put back, `npm test` still reports 37 passed, while
 the smoke test fails.
 
-CI (`.github/workflows/ci.yml`) runs both on every push and pull request: the
-unit tests on Node 20, 22 and 24, and the smoke test on Node 22.
+CI (`.github/workflows/ci.yml`) runs both on every pull request and every push
+to `master`: the unit tests on Node 20, 22 and 24, and the smoke test on
+Node 22.

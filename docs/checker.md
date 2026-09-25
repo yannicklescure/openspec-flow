@@ -184,7 +184,9 @@ instead of assuming it:
   real file. A naive "invoked directly?" test fails, `main` never runs, and the
   process exits `0`. A CI job calling the bin would pass forever without
   checking anything. `invokedDirectly()` compares both paths through
-  `realpathSync`.
+  `realpathSync`. The unit tests cannot catch this, because each one imports a
+  `lib/` module directly and never reaches the entry point. The bin smoke test
+  (below) covers it.
 - **The empty test list.** `run-tests.sh` passes an explicit list of files to
   `node --test`, because Node versions disagree about directories and globs. If
   the list is empty, `node --test` discovers tests from the working directory
@@ -192,10 +194,38 @@ instead of assuming it:
 
 ## Running the tests
 
+Two suites, and neither replaces the other:
+
 ```bash
-npm test
+npm test          # unit tests: each lib/ module, pure, no fixtures on disk
+npm run test:bin  # smoke test: the bin as a consumer installs it
 ```
 
-This runs `scripts/check-specs/run-tests.sh`. Do not use
+`npm test` runs `scripts/check-specs/run-tests.sh`. Do not use
 `node --test scripts/check-specs/`: passing a directory fails on Node 22 and 24,
 and passing a glob fails on Node 20.
+
+`npm run test:bin` runs `scripts/check-specs/smoke-bin.sh`. It packs the
+package, installs the tarball into a temporary project, and calls the bin
+through the `node_modules/.bin` symlink. It installs a pinned
+`@fission-ai/openspec` from the registry, so it is the only test that needs the
+network. It makes four observations, and probes the boundary in both
+directions:
+
+```mermaid
+flowchart LR
+  A["A: --help<br/>exit 0 and prints usage"] --> B["B: no openspec CLI<br/>exit 1, names strict"]
+  B --> C["C: seeded dropped scenario<br/>exit 1, names it"]
+  C --> D["D: scenario restored<br/>exit 0"]
+```
+
+- **A** proves that `main` ran at all.
+- **B** proves that a tool that never ran is not read as a pass.
+- **C** proves that the checker catches a real fault.
+- **D** proves that it does not fire on everything.
+
+With the old entry guard put back, `npm test` still reports 37 passed, while
+the smoke test fails.
+
+CI (`.github/workflows/ci.yml`) runs both on every push and pull request: the
+unit tests on Node 20, 22 and 24, and the smoke test on Node 22.

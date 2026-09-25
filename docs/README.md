@@ -83,6 +83,8 @@ commands/verify-green.md            is this PR green against its head?
 commands/archive-on-green.md        pin, confirm, archive, verify
 scripts/check-specs/index.mjs       CLI entry point: all disk I/O, one subprocess
 scripts/check-specs/lib/*.mjs       pure checks over text, unit-tested
+scripts/check-specs/smoke-bin.sh    the bin, packed and installed as a consumer gets it
+.github/workflows/ci.yml            unit tests on Node 20/22/24, smoke test on 22
 ```
 
 Installation and the `openspec-flow.json` format are in the

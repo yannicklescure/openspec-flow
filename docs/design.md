@@ -10,8 +10,15 @@ package follows.
 A gate is worth its cost only where someone makes a decision. In the source
 repository, the gates before commit and before archive never changed an outcome,
 and they split the work into states that nobody could track. So the flow has one
-gate, at merge, plus an explicit "does this deserve a change?" at the start.
-See [The change flow](change-flow.md#why-one-gate).
+gate *inside* it, at merge, and the "does this deserve a change?" judgement is
+asked out loud at `/start-change`.
+
+The count of stops was never the metric. `/start-change` and `/stop-change`
+**bracket** the flow rather than interrupting it: they say whether a change is in
+flight at all, which is what nothing said when a change was merged first and
+archived afterwards. A bracket that refuses — `/stop-change` will not close an
+unarchived change — answers by construction the question the old archive gate
+had to ask. See [The change flow](change-flow.md#why-one-gate).
 
 ## 2. Evidence, not exit codes
 
@@ -95,4 +102,6 @@ When you change a rule, read the reason first.
   true passes every check. That needs a reader.
 - **It does not decide what deserves a capability.** An inventory that nothing
   declares passes silently. That decision is a judgement.
-- **It does not merge.** Merge is the one human gate.
+- **It does not merge.** Merge is the one gate inside the flow, and it is the
+  human's. Nor does it decide that a change should be abandoned: `/stop-change
+  --abandon` executes that decision, it does not make it.

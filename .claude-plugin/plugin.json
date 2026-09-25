@@ -1,7 +1,7 @@
 {
   "name": "openspec-flow",
   "version": "0.1.2",
-  "description": "A change flow for OpenSpec repositories with one human gate at merge, plus drift checks that hold a specification to the code it claims to describe.",
+  "description": "A change flow for OpenSpec repositories with one human gate at merge, bracketed by an explicit start and stop, plus drift checks that hold a specification to the code it claims to describe.",
   "author": {
     "name": "Yannick Lescure"
   },

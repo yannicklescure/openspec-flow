@@ -1,15 +1,16 @@
 # openspec-flow
 
 A Claude Code plugin for repositories using [OpenSpec](https://github.com/fission-ai/openspec):
-a change flow with **one human gate, at merge**, plus drift checks that hold a
-specification to the code it claims to describe.
+a change flow with **one human gate inside it, at merge**, bracketed by an
+explicit start and stop, plus drift checks that hold a specification to the code
+it claims to describe.
 
 It exists because both halves were learned the expensive way in one repository
 and then could not travel. The reasoning is kept, not just the rules — a rule
 without its reason gets "simplified" back out.
 
-How the flow runs, why it has one gate, and how the checker is built — with
-diagrams — are in [`docs/`](docs/README.md).
+How the flow runs, why it has one gate and two brackets, and how the checker is
+built — with diagrams — are in [`docs/`](docs/README.md).
 
 ## What's in it
 
@@ -17,14 +18,22 @@ diagrams — are in [`docs/`](docs/README.md).
 
 | skill | covers |
 |---|---|
-| `openspec-change-flow` | the sequence, why one gate, archive-on-verified-green, the `gh pr checks --watch` false green, post-archive verification |
+| `openspec-change-flow` | the sequence, why one gate inside the brackets, archive-on-verified-green, the `gh pr checks --watch` false green, post-archive verification |
 | `openspec-spec-drift` | what a `MODIFIED` delta silently deletes, both marker placement rules and why they are opposites, the doc-vs-spec asymmetry |
 | `openspec-evidence` | watch a check fail before trusting it; three ways a green check means nothing |
 
 **Commands**:
 
+- `/start-change` — open the flow: does this deserve a change, is the tree clean, is the base current, is the name free
 - `/archive-on-green` — pin the head SHA, confirm each check by name, archive, verify the apply
 - `/verify-green` — is this PR actually green, against its current head?
+- `/stop-change` — close a change that reached its end, or `--abandon` one without losing the work
+
+`/start-change` and `/stop-change` bracket the flow; merge stays the only gate
+*inside* it. Why that is not a contradiction of "one gate" is argued in the
+`openspec-change-flow` skill — the metric was never the number of stops but
+whether a decision lives at each one, and "does this deserve a change?" was the
+decision the old flow left ungated.
 
 **Checker** — `scripts/check-specs`, four checks over `openspec/`:
 
@@ -120,12 +129,14 @@ reason that stopped being true months ago. That class needs a reader.
 ## Developing this package
 
 ```bash
-npm test          # 37 unit tests, no dependencies, no fixtures on disk
-npm run test:bin  # packs, installs and drives the bin the way a consumer gets it
+npm test            # 37 unit tests, no dependencies, no fixtures on disk
+npm run test:bin    # packs, installs and drives the bin the way a consumer gets it
+npm run test:gates  # watches each /start-change and /stop-change refusal refuse
 ```
 
-Both run in CI (`.github/workflows/ci.yml`) on every pull request and every push
-to `master` — the unit tests across Node 20, 22 and 24, the smoke test on 22.
+All three run in CI (`.github/workflows/ci.yml`) on every pull request and every
+push to `master` — the unit tests across Node 20, 22 and 24, the smoke test on
+22, the gate refusals on git alone.
 
 The two are not redundant. Every unit test imports a module under `lib/`
 directly and never reaches the entry point, so when the bin silently exited 0
@@ -140,6 +151,18 @@ again.
 Watched failing before being trusted, per the `openspec-evidence` skill:
 reintroducing that entry guard leaves `npm test` at 37 passed while the smoke
 test reports three failures.
+
+`scripts/gates/refusal-cases.sh` does the same job for the two gates, which are
+prose and so cannot be run. It builds each refusing state in a throwaway
+repository and checks that the detection command the command file names says
+something **different** there than in the adjacent permitting state — 16
+observations, both directions of every boundary. A refusal whose condition no
+command can observe is a sentence, not a gate. Watched failing too: narrowing the
+name search to `-maxdepth 1` reddens exactly the two observations that read it,
+and stubbing `@{upstream}` so it always resolves reddens exactly the no-upstream
+refusal. What it does **not** cover is printed by the run itself — the "does this
+deserve a change?" judgement, the pull-request states, and whether an agent obeys
+a refusal it can see.
 
 ## Licence
 

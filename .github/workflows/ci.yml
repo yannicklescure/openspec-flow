@@ -87,3 +87,25 @@ jobs:
       # It installs @fission-ai/openspec from the registry, which makes this
       # the one job here that needs network beyond the checkout.
       - run: sh scripts/check-specs/smoke-bin.sh
+
+  gates:
+    name: gate refusals
+    runs-on: ubuntu-26.04
+
+    # The `/start-change` and `/stop-change` gates are prose, so this job cannot
+    # run them. What it holds them to is weaker and still worth having: every
+    # refusal they claim rests on a condition a command can observe, and that
+    # command says something different in the refusing state than in the
+    # adjacent permitting one. A gate whose refusal condition is not observable
+    # is a sentence, and would be paraphrased away without anything noticing.
+    #
+    # Watched failing before being trusted: narrowing the name search to
+    # `-maxdepth 1` reddens exactly the two observations that read it, and
+    # stubbing `@{upstream}` so it always resolves reddens exactly the
+    # no-upstream refusal.
+    #
+    # git only — no network beyond the checkout, no `gh`, no `openspec`.
+    steps:
+      - uses: actions/checkout@v7
+
+      - run: sh scripts/gates/refusal-cases.sh
